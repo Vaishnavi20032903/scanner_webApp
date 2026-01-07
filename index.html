@@ -150,6 +150,13 @@ Maxion Automation Pvt Ltd – Visitor Lead Scanner
 </label>
 </div>
 
+<!-- PHOTO -->
+<div class="card">
+<h3>Photo with Director (optional)</h3>
+<input type="file" accept="image/*" capture="camera">
+<p style="font-size:12px;color:#666;">(Attach manually in WhatsApp)</p>
+</div>
+
 <!-- ACTION BUTTONS -->
 <div class="card">
 <div class="row">
@@ -232,13 +239,27 @@ function parseVCard(v){
 function buildMessage(v){
   return `Hello ${v.name},
 
-Thank you for visiting Maxion Automation Pvt Ltd.
-${v.enquiry==="Yes"?"We noted your enquiry and will contact you shortly.":""}
+Greetings from Maxion Automation Pvt. Ltd.
 
-Regards,
-Maxion Automation Team`;
+Thank you for visiting our stall at the Advantage Maharashtra Expo.
+It was a pleasure interacting with you.
+
+We specialize in delivering advanced robotic and automation solutions
+for Aluminium Die Casting, Foundry, Stamping, and Fabrication industries—
+covering robotic handling, CNC tending, extraction, deburring, deflashing,
+metal pouring, welding, and many more applications.
+
+Our focus is on enhancing quality, boosting productivity, and minimizing
+manual dependency.
+
+Please feel free to reach out if you have any requirements or inquiries—
+we would be happy to assist.
+
+Warm regards,
+Harshad Markad
+📞 +91 8432091100
+Maxion Automation Pvt. Ltd.`;
 }
-
 /* ---------- SAVE ---------- */
 function saveVisitor(){
   if(!scannedVcard) return alert("Scan QR first");
@@ -371,4 +392,3 @@ function clearAllData(){
 
 </body>
 </html>
-
