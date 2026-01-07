@@ -330,12 +330,26 @@ function sendEmailHistory(index){
 function openMail(email,name,enq){
   const sub="Thank you for visiting Maxion Automation Pvt Ltd";
   const body=`Hello ${name},
+Greetings from Maxion Automation Pvt. Ltd.
 
-Thank you for visiting Maxion Automation Pvt Ltd.
-${enq==="Yes"?"We noted your enquiry and our team will reach out.":""}
+Thank you for visiting our stall at the Advantage Maharashtra Expo.
+It was a pleasure interacting with you.
+
+We specialize in delivering advanced robotic and automation solutions
+for Aluminium Die Casting, Foundry, Stamping, and Fabrication industries—
+covering robotic handling, CNC tending, extraction, deburring, deflashing,
+metal pouring, welding, and many more applications.
+
+Our focus is on enhancing quality, boosting productivity, and minimizing
+manual dependency.
+
+Please feel free to reach out if you have any requirements or inquiries—
+we would be happy to assist.
 
 Warm regards,
-Maxion Automation Team`;
+Harshad Markad
+📞 +91 8432091100
+Maxion Automation Pvt. Ltd.`;
 
   window.location.href=
   `mailto:${email}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
