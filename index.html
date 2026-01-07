@@ -36,7 +36,13 @@ header{
   margin:auto;
 }
 
-
+.card{
+  background:var(--card);
+  padding:12px;
+  border-radius:8px;
+  margin-bottom:12px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
 
 h3{
   margin-top:0;
@@ -68,7 +74,11 @@ button{
 }
 
 button.secondary{
-  background:#444;
+  background:#066321;
+}
+
+button.danger{
+  background:#b30000;
 }
 
 button.small{
@@ -140,7 +150,12 @@ Maxion Automation Pvt Ltd – Visitor Lead Scanner
 </label>
 </div>
 
-
+<!-- PHOTO -->
+<div class="card">
+<h3>Photo with Director (optional)</h3>
+<input type="file" accept="image/*" capture="camera">
+<p style="font-size:12px;color:#666;">(Attach manually in WhatsApp)</p>
+</div>
 
 <!-- ACTION BUTTONS -->
 <div class="card">
@@ -157,10 +172,13 @@ Maxion Automation Pvt Ltd – Visitor Lead Scanner
 <div class="row">
 <button onclick="downloadExcel()">Download Excel</button>
 <button onclick="backupData()">Backup</button>
+
 <label class="secondary">
 Restore
 <input type="file" accept=".json" style="display:none" onchange="restoreData(event)">
 </label>
+
+<button class="danger" onclick="clearAllData()">Clear All Data</button>
 </div>
 </div>
 
@@ -184,7 +202,7 @@ Restore
 </div>
 
 <div class="footer">
-Offline Plan A • Multi-phone • Excel merge supported
+&copy; 2024 Maxion Automation Pvt Ltd designed by vaishnavi bhakare
 </div>
 
 </div>
@@ -218,21 +236,33 @@ function parseVCard(v){
   };
 }
 
+function buildMessage(v){
+  return `Hello ${v.name},
+
+Thank you for visiting Maxion Automation Pvt Ltd.
+${v.enquiry==="Yes"?"We noted your enquiry and will contact you shortly.":""}
+
+Regards,
+Maxion Automation Team`;
+}
+
 /* ---------- SAVE ---------- */
 function saveVisitor(){
   if(!scannedVcard) return alert("Scan QR first");
   const d=parseVCard(scannedVcard);
+
   if(visitors.some(v=>v.phone===d.phone && d.phone)){
     alert("Duplicate visitor");
     return;
   }
+
   visitors.push(d);
   localStorage.setItem("visitors",JSON.stringify(visitors));
   render();
   alert("Saved");
 }
 
-/* ---------- RENDER TABLE ---------- */
+/* ---------- RENDER ---------- */
 function render(){
   const t=document.getElementById("tableBody");
   t.innerHTML="";
@@ -254,18 +284,11 @@ function render(){
 }
 render();
 
-/* ---------- IMMEDIATE ACTIONS (SCAN) ---------- */
+/* ---------- IMMEDIATE ACTIONS ---------- */
 function sendWhatsApp(){
   if(!scannedVcard) return;
   const v=parseVCard(scannedVcard);
-  const msg=`Hello ${v.name},
-
-Thank you for visiting Maxion Automation Pvt Ltd.
-${v.enquiry==="Yes"?"We noted your enquiry and will contact you shortly.":""}
-
-Regards,
-Maxion Automation Team`;
-
+  const msg=buildMessage(v);
   window.open(`https://wa.me/91${v.phone}?text=${encodeURIComponent(msg)}`);
 }
 
@@ -275,25 +298,17 @@ function sendEmail(){
   openMail(v.email,v.name,v.enquiry);
 }
 
-/* ---------- HISTORY ACTIONS (FIXED) ---------- */
+/* ---------- HISTORY ACTIONS ---------- */
 function sendWhatsAppHistory(index){
   const v=visitors[index];
   if(!v) return;
-
-  const msg=`Hello ${v.name},
-
-Thank you for visiting Maxion Automation Pvt Ltd.
-${v.enquiry==="Yes"?"We noted your enquiry and will contact you shortly.":""}
-
-Regards,
-Maxion Automation Team`;
-
+  const msg=buildMessage(v);
   window.open(`https://wa.me/91${v.phone}?text=${encodeURIComponent(msg)}`);
 }
 
 function sendEmailHistory(index){
   const v=visitors[index];
-  if(!v || !v.email) return alert("Email not available");
+  if(!v||!v.email) return alert("Email not available");
   openMail(v.email,v.name,v.enquiry);
 }
 
@@ -347,8 +362,19 @@ function restoreData(e){
   };
   r.readAsText(f);
 }
+
+/* ---------- CLEAR ALL (NEW) ---------- */
+function clearAllData(){
+  if(!confirm(
+    "Are you sure you want to CLEAR ALL visitor data?\n\nThis action cannot be undone."
+  )) return;
+
+  visitors=[];
+  localStorage.removeItem("visitors");
+  render();
+  alert("All visitor data cleared");
+}
 </script>
 
 </body>
 </html>
-
