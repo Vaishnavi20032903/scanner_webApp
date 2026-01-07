@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Visitor QR Scanner – Maxion Automation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 10px;
+    }
+    h2, h3 {
+      text-align: center;
+    }
+    #reader {
+      width: 300px;
+      margin: auto;
+    }
+    pre {
+      background: #fff;
+      padding: 10px;
+      font-size: 13px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    .card {
+      background: #fff;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+    }
+    button {
+      padding: 10px;
+      margin: 5px 2px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      background: #0a7d2c;
+      color: white;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .row button {
+      flex: 1;
+      margin: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 4px;
+    }
+    th {
+      background: #ddd;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Visitor QR Scanner</h2>
+
+<div id="reader"></div>
+
+<div class="card">
+  <h3>Scanned vCard</h3>
+  <pre id="raw">Waiting for scan…</pre>
+</div>
+
+<div class="card">
+  <h3>Enquiry</h3>
+  <label><input type="radio" name="enquiry" value="Yes"> Yes</label>
+  <label style="margin-left:10px;">
+    <input type="radio" name="enquiry" value="No" checked> No
+  </label>
+</div>
+
+<div class="card">
+  <h3>Photo with Director (optional)</h3>
+  <input type="file" accept="image/*" capture="camera" id="photoInput">
+</div>
+
+<div class="card row">
+  <button onclick="sendWhatsApp()">Send WhatsApp</button>
+  <button onclick="sendEmail()">Send Email</button>
+</div>
+
+<div class="card">
+  <button onclick="saveVisitor()">Save to History</button>
+  <button onclick="downloadExcel()">Download Excel</button>
+</div>
+
+<h3>Saved Visitors</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Time</th>
+      <th>Name</th>
+      <th>Org</th>
+      <th>Phone</th>
+      <th>Email</th>
+      <th>Enquiry</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
+
+<script>
+let scannedVcard = "";
+let visitors = JSON.parse(localStorage.getItem("visitors") || "[]");
+
+// QR Scanner
+new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 })
+  .render(text => {
+    scannedVcard = text;
+    document.getElementById("raw").innerText = text;
+  });
+
+// Parse vCard
+function parseVCard(v) {
+  const get = r => (v.match(r) || ["",""])[1].trim();
+  return {
+    time: new Date().toLocaleString(),
+    name: get(/FN:(.*)/),
+    org: get(/ORG:(.*)/),
+    phone: get(/TEL.*:(.*)/),
+    email: get(/EMAIL.*:(.*)/),
+    enquiry: getEnquiry()
+  };
+}
+
+function getEnquiry() {
+  const radios = document.getElementsByName("enquiry");
+  for (let r of radios) if (r.checked) return r.value;
+  return "No";
+}
+
+// Save visitor
+function saveVisitor() {
+  if (!scannedVcard) {
+    alert("Scan QR first");
+    return;
+  }
+  const data = parseVCard(scannedVcard);
+
+  if (visitors.some(v => v.phone === data.phone && data.phone)) {
+    alert("Duplicate visitor");
+    return;
+  }
+
+  visitors.push(data);
+  localStorage.setItem("visitors", JSON.stringify(visitors));
+  renderTable();
+  alert("Saved successfully");
+}
+
+// Render table
+function renderTable() {
+  const tbody = document.getElementById("tableBody");
+  tbody.innerHTML = "";
+  visitors.forEach(v => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${v.time}</td>
+        <td>${v.name}</td>
+        <td>${v.org}</td>
+        <td>${v.phone}</td>
+        <td>${v.email}</td>
+        <td>${v.enquiry}</td>
+      </tr>`;
+  });
+}
+renderTable();
+
+// WhatsApp
+function sendWhatsApp() {
+  if (!scannedVcard) return alert("Scan QR first");
+  const v = parseVCard(scannedVcard);
+
+  const msg = `Hello ${v.name},
+
+Thank you for visiting Maxion Automation Pvt Ltd.
+
+${v.enquiry === "Yes" ? "We have noted your enquiry and our team will contact you shortly." : ""}
+
+Regards,
+Maxion Automation Team`;
+
+  window.open(`https://wa.me/91${v.phone}?text=${encodeURIComponent(msg)}`);
+}
+
+// Email
+function sendEmail() {
+  if (!scannedVcard) return alert("Scan QR first");
+  const v = parseVCard(scannedVcard);
+
+  const subject = "Thank you for visiting Maxion Automation Pvt Ltd";
+  const body = `Hello ${v.name},
+
+Thank you for visiting Maxion Automation Pvt Ltd.
+
+${v.enquiry === "Yes" ? "We have noted your enquiry and our team will get in touch." : ""}
+
+Warm regards,
+Maxion Automation Team`;
+
+  window.location.href =
+    `mailto:${v.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+// Export Excel (CSV)
+function downloadExcel() {
+  if (visitors.length === 0) return alert("No data");
+
+  let csv = "Time,Name,Organization,Phone,Email,Enquiry\n";
+  visitors.forEach(v => {
+    csv += `"${v.time}","${v.name}","${v.org}","${v.phone}","${v.email}","${v.enquiry}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "visitor_data_" + Date.now() + ".csv";
+  a.click();
+}
+</script>
+
+</body>
+</html>
