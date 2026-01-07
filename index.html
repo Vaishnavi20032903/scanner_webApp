@@ -204,14 +204,14 @@ Offline Plan A • Multi-phone • Excel merge supported
 let scannedVcard="";
 let visitors=JSON.parse(localStorage.getItem("visitors")||"[]");
 
-// QR
+/* ---------- QR SCANNER ---------- */
 new Html5QrcodeScanner("reader",{fps:10,qrbox:250})
 .render(txt=>{
   scannedVcard=txt;
   document.getElementById("raw").innerText=txt;
 });
 
-// Utils
+/* ---------- HELPERS ---------- */
 function enquiryVal(){
   return [...document.getElementsByName("enquiry")]
   .find(r=>r.checked)?.value||"No";
@@ -229,7 +229,7 @@ function parseVCard(v){
   };
 }
 
-// SAVE
+/* ---------- SAVE ---------- */
 function saveVisitor(){
   if(!scannedVcard) return alert("Scan QR first");
   const d=parseVCard(scannedVcard);
@@ -243,11 +243,11 @@ function saveVisitor(){
   alert("Saved");
 }
 
-// RENDER
+/* ---------- RENDER TABLE ---------- */
 function render(){
   const t=document.getElementById("tableBody");
   t.innerHTML="";
-  visitors.forEach(v=>{
+  visitors.forEach((v,i)=>{
     t.innerHTML+=`
     <tr>
       <td>${v.time}</td>
@@ -257,15 +257,15 @@ function render(){
       <td>${v.email}</td>
       <td>${v.enquiry}</td>
       <td class="actions">
-        <button class="small" onclick="waFromHistory('${v.phone}')">WA</button>
-        <button class="small" onclick="mailFromHistory('${v.email}','${v.name}','${v.enquiry}')">Mail</button>
+        <button class="small" onclick="sendWhatsAppHistory(${i})">WA</button>
+        <button class="small" onclick="sendEmailHistory(${i})">Mail</button>
       </td>
     </tr>`;
   });
 }
 render();
 
-// WHATSAPP
+/* ---------- IMMEDIATE ACTIONS (SCAN) ---------- */
 function sendWhatsApp(){
   if(!scannedVcard) return;
   const v=parseVCard(scannedVcard);
@@ -276,26 +276,39 @@ ${v.enquiry==="Yes"?"We noted your enquiry and will contact you shortly.":""}
 
 Regards,
 Maxion Automation Team`;
+
   window.open(`https://wa.me/91${v.phone}?text=${encodeURIComponent(msg)}`);
 }
 
-function waFromHistory(p){
-  const v=visitors.find(x=>x.phone===p);
-  if(!v) return;
-  sendWhatsApp(v);
-}
-
-// EMAIL
 function sendEmail(){
   if(!scannedVcard) return;
   const v=parseVCard(scannedVcard);
   openMail(v.email,v.name,v.enquiry);
 }
 
-function mailFromHistory(e,n,enq){
-  openMail(e,n,enq);
+/* ---------- HISTORY ACTIONS (FIXED) ---------- */
+function sendWhatsAppHistory(index){
+  const v=visitors[index];
+  if(!v) return;
+
+  const msg=`Hello ${v.name},
+
+Thank you for visiting Maxion Automation Pvt Ltd.
+${v.enquiry==="Yes"?"We noted your enquiry and will contact you shortly.":""}
+
+Regards,
+Maxion Automation Team`;
+
+  window.open(`https://wa.me/91${v.phone}?text=${encodeURIComponent(msg)}`);
 }
 
+function sendEmailHistory(index){
+  const v=visitors[index];
+  if(!v || !v.email) return alert("Email not available");
+  openMail(v.email,v.name,v.enquiry);
+}
+
+/* ---------- EMAIL ---------- */
 function openMail(email,name,enq){
   const sub="Thank you for visiting Maxion Automation Pvt Ltd";
   const body=`Hello ${name},
@@ -305,10 +318,12 @@ ${enq==="Yes"?"We noted your enquiry and our team will reach out.":""}
 
 Warm regards,
 Maxion Automation Team`;
-  window.location.href=`mailto:${email}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
+
+  window.location.href=
+  `mailto:${email}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
 }
 
-// EXCEL
+/* ---------- EXCEL ---------- */
 function downloadExcel(){
   if(!visitors.length) return alert("No data");
   let csv="Time,Name,Organization,Phone,Email,Enquiry\n";
@@ -321,17 +336,16 @@ function downloadExcel(){
   a.click();
 }
 
-// BACKUP
+/* ---------- BACKUP / RESTORE ---------- */
 function backupData(){
   const a=document.createElement("a");
-  a.href=URL.createObjectURL(new Blob(
-    [JSON.stringify(visitors)],{type:"application/json"}
-  ));
+  a.href=URL.createObjectURL(
+    new Blob([JSON.stringify(visitors)],{type:"application/json"})
+  );
   a.download="visitor_backup.json";
   a.click();
 }
 
-// RESTORE
 function restoreData(e){
   const f=e.target.files[0];
   if(!f) return;
