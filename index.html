@@ -1,237 +1,348 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Visitor QR Scanner – Maxion Automation</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>Visitor Scanner | Maxion Automation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 10px;
-    }
-    h2, h3 {
-      text-align: center;
-    }
-    #reader {
-      width: 300px;
-      margin: auto;
-    }
-    pre {
-      background: #fff;
-      padding: 10px;
-      font-size: 13px;
-      max-height: 160px;
-      overflow-y: auto;
-    }
-    .card {
-      background: #fff;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 6px;
-    }
-    button {
-      padding: 10px;
-      margin: 5px 2px;
-      font-size: 14px;
-      border: none;
-      border-radius: 5px;
-      background: #0a7d2c;
-      color: white;
-    }
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-    }
-    .row button {
-      flex: 1;
-      margin: 5px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 12px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 4px;
-    }
-    th {
-      background: #ddd;
-    }
-  </style>
+<style>
+:root{
+  --primary:#0a7d2c;
+  --secondary:#111;
+  --bg:#f4f6f8;
+  --card:#fff;
+}
+
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:var(--bg);
+}
+
+header{
+  background:var(--secondary);
+  color:#fff;
+  padding:12px;
+  text-align:center;
+  font-size:18px;
+  font-weight:bold;
+}
+
+.container{
+  padding:10px;
+  max-width:900px;
+  margin:auto;
+}
+
+.card{
+  background:var(--card);
+  padding:12px;
+  border-radius:8px;
+  margin-bottom:12px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+h3{
+  margin-top:0;
+  color:var(--primary);
+}
+
+#reader{
+  width:300px;
+  margin:auto;
+}
+
+pre{
+  background:#eee;
+  padding:8px;
+  font-size:12px;
+  max-height:140px;
+  overflow:auto;
+}
+
+button{
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  padding:10px;
+  border-radius:6px;
+  margin:4px 2px;
+  font-size:14px;
+  cursor:pointer;
+}
+
+button.secondary{
+  background:#444;
+}
+
+button.small{
+  padding:6px 8px;
+  font-size:12px;
+}
+
+.row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
+
+th,td{
+  border:1px solid #ccc;
+  padding:6px;
+  text-align:left;
+}
+
+th{
+  background:#eaeaea;
+}
+
+.actions button{
+  margin:2px;
+}
+
+.footer{
+  text-align:center;
+  font-size:11px;
+  color:#666;
+  margin-top:10px;
+}
+</style>
 </head>
 
 <body>
 
-<h2>Visitor QR Scanner</h2>
+<header>
+Maxion Automation Pvt Ltd – Visitor Lead Scanner
+</header>
 
+<div class="container">
+
+<!-- SCANNER -->
+<div class="card">
+<h3>Scan Visitor QR</h3>
 <div id="reader"></div>
+</div>
 
+<!-- RAW DATA -->
 <div class="card">
-  <h3>Scanned vCard</h3>
-  <pre id="raw">Waiting for scan…</pre>
+<h3>Scanned vCard</h3>
+<pre id="raw">Waiting for scan…</pre>
 </div>
 
+<!-- ENQUIRY -->
 <div class="card">
-  <h3>Enquiry</h3>
-  <label><input type="radio" name="enquiry" value="Yes"> Yes</label>
-  <label style="margin-left:10px;">
-    <input type="radio" name="enquiry" value="No" checked> No
-  </label>
+<h3>Enquiry</h3>
+<label><input type="radio" name="enquiry" value="Yes"> Yes</label>
+<label style="margin-left:10px;">
+<input type="radio" name="enquiry" value="No" checked> No
+</label>
 </div>
 
+<!-- PHOTO -->
 <div class="card">
-  <h3>Photo with Director (optional)</h3>
-  <input type="file" accept="image/*" capture="camera" id="photoInput">
+<h3>Photo with Director (optional)</h3>
+<input type="file" accept="image/*" capture="camera">
+<p style="font-size:12px;color:#666;">(Attach manually in WhatsApp)</p>
 </div>
 
-<div class="card row">
-  <button onclick="sendWhatsApp()">Send WhatsApp</button>
-  <button onclick="sendEmail()">Send Email</button>
-</div>
-
+<!-- ACTION BUTTONS -->
 <div class="card">
-  <button onclick="saveVisitor()">Save to History</button>
-  <button onclick="downloadExcel()">Download Excel</button>
+<div class="row">
+<button onclick="sendWhatsApp()">Send WhatsApp</button>
+<button onclick="sendEmail()">Send Email</button>
+<button class="secondary" onclick="saveVisitor()">Save to History</button>
+</div>
 </div>
 
+<!-- DATA MANAGEMENT -->
+<div class="card">
+<h3>Data Management</h3>
+<div class="row">
+<button onclick="downloadExcel()">Download Excel</button>
+<button onclick="backupData()">Backup</button>
+<label class="secondary">
+Restore
+<input type="file" accept=".json" style="display:none" onchange="restoreData(event)">
+</label>
+</div>
+</div>
+
+<!-- HISTORY -->
+<div class="card">
 <h3>Saved Visitors</h3>
 <table>
-  <thead>
-    <tr>
-      <th>Time</th>
-      <th>Name</th>
-      <th>Org</th>
-      <th>Phone</th>
-      <th>Email</th>
-      <th>Enquiry</th>
-    </tr>
-  </thead>
-  <tbody id="tableBody"></tbody>
+<thead>
+<tr>
+<th>Time</th>
+<th>Name</th>
+<th>Org</th>
+<th>Phone</th>
+<th>Email</th>
+<th>Enquiry</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
 </table>
+</div>
+
+<div class="footer">
+Offline Plan A • Multi-phone • Excel merge supported
+</div>
+
+</div>
 
 <script>
-let scannedVcard = "";
-let visitors = JSON.parse(localStorage.getItem("visitors") || "[]");
+let scannedVcard="";
+let visitors=JSON.parse(localStorage.getItem("visitors")||"[]");
 
-// QR Scanner
-new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 })
-  .render(text => {
-    scannedVcard = text;
-    document.getElementById("raw").innerText = text;
-  });
+// QR
+new Html5QrcodeScanner("reader",{fps:10,qrbox:250})
+.render(txt=>{
+  scannedVcard=txt;
+  document.getElementById("raw").innerText=txt;
+});
 
-// Parse vCard
-function parseVCard(v) {
-  const get = r => (v.match(r) || ["",""])[1].trim();
-  return {
-    time: new Date().toLocaleString(),
-    name: get(/FN:(.*)/),
-    org: get(/ORG:(.*)/),
-    phone: get(/TEL.*:(.*)/),
-    email: get(/EMAIL.*:(.*)/),
-    enquiry: getEnquiry()
+// Utils
+function enquiryVal(){
+  return [...document.getElementsByName("enquiry")]
+  .find(r=>r.checked)?.value||"No";
+}
+
+function parseVCard(v){
+  const g=r=>(v.match(r)||["",""])[1].trim();
+  return{
+    time:new Date().toLocaleString(),
+    name:g(/FN:(.*)/),
+    org:g(/ORG:(.*)/),
+    phone:g(/TEL.*:(.*)/),
+    email:g(/EMAIL.*:(.*)/),
+    enquiry:enquiryVal()
   };
 }
 
-function getEnquiry() {
-  const radios = document.getElementsByName("enquiry");
-  for (let r of radios) if (r.checked) return r.value;
-  return "No";
-}
-
-// Save visitor
-function saveVisitor() {
-  if (!scannedVcard) {
-    alert("Scan QR first");
-    return;
-  }
-  const data = parseVCard(scannedVcard);
-
-  if (visitors.some(v => v.phone === data.phone && data.phone)) {
+// SAVE
+function saveVisitor(){
+  if(!scannedVcard) return alert("Scan QR first");
+  const d=parseVCard(scannedVcard);
+  if(visitors.some(v=>v.phone===d.phone && d.phone)){
     alert("Duplicate visitor");
     return;
   }
-
-  visitors.push(data);
-  localStorage.setItem("visitors", JSON.stringify(visitors));
-  renderTable();
-  alert("Saved successfully");
+  visitors.push(d);
+  localStorage.setItem("visitors",JSON.stringify(visitors));
+  render();
+  alert("Saved");
 }
 
-// Render table
-function renderTable() {
-  const tbody = document.getElementById("tableBody");
-  tbody.innerHTML = "";
-  visitors.forEach(v => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${v.time}</td>
-        <td>${v.name}</td>
-        <td>${v.org}</td>
-        <td>${v.phone}</td>
-        <td>${v.email}</td>
-        <td>${v.enquiry}</td>
-      </tr>`;
+// RENDER
+function render(){
+  const t=document.getElementById("tableBody");
+  t.innerHTML="";
+  visitors.forEach(v=>{
+    t.innerHTML+=`
+    <tr>
+      <td>${v.time}</td>
+      <td>${v.name}</td>
+      <td>${v.org}</td>
+      <td>${v.phone}</td>
+      <td>${v.email}</td>
+      <td>${v.enquiry}</td>
+      <td class="actions">
+        <button class="small" onclick="waFromHistory('${v.phone}')">WA</button>
+        <button class="small" onclick="mailFromHistory('${v.email}','${v.name}','${v.enquiry}')">Mail</button>
+      </td>
+    </tr>`;
   });
 }
-renderTable();
+render();
 
-// WhatsApp
-function sendWhatsApp() {
-  if (!scannedVcard) return alert("Scan QR first");
-  const v = parseVCard(scannedVcard);
-
-  const msg = `Hello ${v.name},
+// WHATSAPP
+function sendWhatsApp(){
+  if(!scannedVcard) return;
+  const v=parseVCard(scannedVcard);
+  const msg=`Hello ${v.name},
 
 Thank you for visiting Maxion Automation Pvt Ltd.
-
-${v.enquiry === "Yes" ? "We have noted your enquiry and our team will contact you shortly." : ""}
+${v.enquiry==="Yes"?"We noted your enquiry and will contact you shortly.":""}
 
 Regards,
 Maxion Automation Team`;
-
   window.open(`https://wa.me/91${v.phone}?text=${encodeURIComponent(msg)}`);
 }
 
-// Email
-function sendEmail() {
-  if (!scannedVcard) return alert("Scan QR first");
-  const v = parseVCard(scannedVcard);
+function waFromHistory(p){
+  const v=visitors.find(x=>x.phone===p);
+  if(!v) return;
+  sendWhatsApp(v);
+}
 
-  const subject = "Thank you for visiting Maxion Automation Pvt Ltd";
-  const body = `Hello ${v.name},
+// EMAIL
+function sendEmail(){
+  if(!scannedVcard) return;
+  const v=parseVCard(scannedVcard);
+  openMail(v.email,v.name,v.enquiry);
+}
+
+function mailFromHistory(e,n,enq){
+  openMail(e,n,enq);
+}
+
+function openMail(email,name,enq){
+  const sub="Thank you for visiting Maxion Automation Pvt Ltd";
+  const body=`Hello ${name},
 
 Thank you for visiting Maxion Automation Pvt Ltd.
-
-${v.enquiry === "Yes" ? "We have noted your enquiry and our team will get in touch." : ""}
+${enq==="Yes"?"We noted your enquiry and our team will reach out.":""}
 
 Warm regards,
 Maxion Automation Team`;
-
-  window.location.href =
-    `mailto:${v.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href=`mailto:${email}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
 }
 
-// Export Excel (CSV)
-function downloadExcel() {
-  if (visitors.length === 0) return alert("No data");
-
-  let csv = "Time,Name,Organization,Phone,Email,Enquiry\n";
-  visitors.forEach(v => {
-    csv += `"${v.time}","${v.name}","${v.org}","${v.phone}","${v.email}","${v.enquiry}"\n`;
+// EXCEL
+function downloadExcel(){
+  if(!visitors.length) return alert("No data");
+  let csv="Time,Name,Organization,Phone,Email,Enquiry\n";
+  visitors.forEach(v=>{
+    csv+=`"${v.time}","${v.name}","${v.org}","${v.phone}","${v.email}","${v.enquiry}"\n`;
   });
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "visitor_data_" + Date.now() + ".csv";
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download="visitor_data_"+Date.now()+".csv";
   a.click();
+}
+
+// BACKUP
+function backupData(){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(
+    [JSON.stringify(visitors)],{type:"application/json"}
+  ));
+  a.download="visitor_backup.json";
+  a.click();
+}
+
+// RESTORE
+function restoreData(e){
+  const f=e.target.files[0];
+  if(!f) return;
+  const r=new FileReader();
+  r.onload=x=>{
+    visitors=JSON.parse(x.target.result);
+    localStorage.setItem("visitors",JSON.stringify(visitors));
+    render();
+    alert("Data restored");
+  };
+  r.readAsText(f);
 }
 </script>
 
