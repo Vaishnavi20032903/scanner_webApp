@@ -255,7 +255,7 @@ Greetings from Maxion Automation Pvt. Ltd.
 Thank you for visiting our stall at the Advantage Maharashtra Expo.
 It was a pleasure interacting with you.
 
-${v.requirement ? "Your Requirement:\n" + v.requirement + "\n\n" : ""}
+
 
 We specialize in delivering advanced robotic and automation solutions
 for Aluminium Die Casting, Foundry, Stamping, and Fabrication industries—
@@ -328,7 +328,7 @@ function sendWhatsApp(){
 function sendEmail(){
   if(!scannedVcard) return;
   const v=parseVCard(scannedVcard);
-  openMail(v.email,v.name,v.enquiry,v.requirement);
+  openMail(v.email,v.name,v.enquiry);
 }
 
 /* ---------- HISTORY ACTIONS ---------- */
@@ -341,7 +341,7 @@ function sendWhatsAppHistory(index){
 function sendEmailHistory(index){
   const v=visitors[index];
   if(!v||!v.email) return alert("Email not available");
-  openMail(v.email,v.name,v.enquiry,v.requirement);
+  openMail(v.email,v.name,v.enquiry);
 }
 
 /* ---------- EMAIL ---------- */
@@ -354,7 +354,7 @@ Greetings from Maxion Automation Pvt. Ltd.
 Thank you for visiting our stall at the Advantage Maharashtra Expo.
 It was a pleasure interacting with you.
 
-${req ? "Your Requirement:\n" + req + "\n\n" : ""}
+
 
 Warm regards,
 Harshad Markad
@@ -416,3 +416,4 @@ function clearAllData(){
 
 </body>
 </html>
+
